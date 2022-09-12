@@ -30,6 +30,22 @@ fn main() {
 
     let mut cheddar = cheddar::Cheddar::new().expect("cargo manifest could not be read");
 
+      /// Attempt to access the item at `index` as a string.
+  public subscript(index: Int) -> String? {
+    if let cstr = sourcekitd.api.variant_array_get_string(array, index) {
+      return String(cString: cstr)
+    }
+    return nil
+  }
+}
+
+extension SKDResponseArray: CustomStringConvertible {
+  public var description: String {
+    let ptr = sourcekitd.api.variant_description_copy(array)!
+    defer { free(ptr) }
+    return String(cString: ptr)
+  }
+}
     if let Some(file) = matches.value_of("FILE") {
         cheddar.source_file(&file);
     } else if let Some(string) = matches.value_of("STRING") {
