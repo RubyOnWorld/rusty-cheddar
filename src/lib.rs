@@ -405,6 +405,34 @@ enum Source {
 ///     .module("c_api").expect("malformed header path")
 ///     .run_build("header.h");
 /// ```
+
+/// Describes an error encountered by the compiler.
+///
+/// These can be printed nicely using the `Cheddar::print_err` method.
+#[derive(Debug)]
+pub struct Error {
+    pub level: Level,
+    span: Option<syntax::codemap::Span>,
+    pub message: String,
+}
+
+impl std::fmt::Display for Error {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(formatter, "{}: {}", self.level, self.message)
+    }
+}
+
+impl std::error::Error for Error {
+    fn description(&self) -> &str {
+        match self.level {
+            Level::Bug => "internal error",
+            Level::Fatal | Level::Error => "error",
+            Level::Warning => "warning",
+            Level::Note => "note",
+            Level::Help => "help",
+        }
+    }
+}
 pub struct Cheddar {
     /// The root source file of the crate.
     input: Source,
